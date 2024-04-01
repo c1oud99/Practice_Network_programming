@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     char buf[BUF_SIZE];
 
     if(argc != 3)
-        error_handling("[Error] mymove Usage: ./mymove src_file dest_file");
+        printf("[Error] mymove Usage: ./%s src_file dest_file", argv[0]);
 
     source_fd = open(argv[1], O_RDONLY);
     if(source_fd == -1)
