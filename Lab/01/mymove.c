@@ -8,37 +8,33 @@ void error_handling(char* message);
 
 int main(int argc, char* argv[])
 {
-    int source_fd;
-    int destination_fd;
-    int source_size;
-    int destination_size;
+    int src_fd, dst_fd;
+    int read_count;
+    int total_count;
     char buf[BUF_SIZE];
 
-    if(argc != 3)
+    if(argc != 3){
         printf("[Error] mymove Usage: ./%s src_file dest_file", argv[0]);
+        exit(1);
+    }
 
-    source_fd = open(argv[1], O_RDONLY);
-    if(source_fd == -1)
+    src_fd = open(argv[1], O_RDONLY);
+    dst_fd = open(argv[2], O_CREAT|O_WRONLY|O_TRUNC, 0644);
+    if(src_fd == -1 || dst_fd== -1)
         error_handling("open() error!");
     
-    source_size= read(source_fd, buf, sizeof(buf));
-    if(source_size == -1)
-        error_handling("read() error!");
-    printf("read size: %d\n", source_size);
-    printf("file data: %s\n\n", buf);
+    while((read_count= read(src_fd, buf, BUF_SIZE)) != 0)
+    {
+        write(dst_fd, buf, read_count);
+        total_count += read_count;
+    }
+    printf("read size: %d\nfile data: %s\n\n", read_count, buf);
+    printf("write size: %d\n\n", total_count);
 
-    destination_fd = open(argv[2], O_CREAT|O_WRONLY|O_TRUNC, 0644);
-    if(destination_fd == -1)
-        error_handling("open() error!");
-    destination_size = write(destination_fd, buf, sizeof(buf));
-    printf("write size: %d\n\n", destination_size);
-    if(destination_size == -1)
-        error_handling("write() error!"); 
-
-    printf("move from %s to %s (bytes: %d) finished.\n", argv[1], argv[2], destination_size);
+    printf("move from %s to %s (bytes: %d) finished.\n", argv[1], argv[2], total_count);
     
-    close(source_fd);
-    close(destination_fd);
+    close(src_fd);
+    close(dst_fd);
     remove(argv[1]);
     return 0;
 }
